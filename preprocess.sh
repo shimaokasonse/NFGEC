@@ -22,6 +22,7 @@ mkdir ./resource/Wiki/
 python ./resource/create_X2id.py corpus/Wiki/all.txt resource/Wiki/word2id_figer.txt resource/Wiki/feature2id_figer.txt resource/Wiki/label2id_figer.txt
 
 echo "Preprocessing (creating dictionaries)"
+mkdir ./data
 
 echo "OntoNotes"
 mkdir ./data/OntoNotes
