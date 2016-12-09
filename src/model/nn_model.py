@@ -8,7 +8,6 @@ from create_prior_knowledge import create_prior
 
 def weight_variable(shape):
     initial = tf.random_uniform(shape,minval=-0.01, maxval=0.01)
-    #initial = tf.random_normal(shape, stddev = 0.1)
     return tf.Variable(initial)
 
 def attentive_sum(inputs,input_dim, hidden_dim):
@@ -32,7 +31,10 @@ class Model:
         # Argument Checking
         assert(encoder in ["averaging", "lstm", "attentive"])
         assert(type in ["figer", "gillick"])
-
+        self.type = type
+        self.encoder = encoder
+        self.hier = hier
+        self.feature = feature
             
         # Hyperparameters   
         self.context_length = 10
@@ -57,7 +59,7 @@ class Model:
         self.context = [tf.placeholder(tf.float32, [None, self.emb_dim]) for _ in range(self.context_length*2+1)]
         self.target = tf.placeholder(tf.float32,[None,self.target_dim])
 
-        ###
+        ### dropout and splitting context into left and right
         self.mention_representation_dropout = tf.nn.dropout(self.mention_representation,self.keep_prob)
         self.left_context = self.context[:self.context_length]
         self.right_context = self.context[self.context_length+1:]
@@ -66,8 +68,6 @@ class Model:
 
         # Averaging Encoder
         if encoder == "averaging":
-            #self.left_context_representation  = tf.nn.dropout(tf.add_n(self.left_context),self.keep_prob)
-            #self.right_context_representation = tf.nn.dropout(tf.add_n(self.right_context),self.keep_prob)
             self.left_context_representation  = tf.add_n(self.left_context)
             self.right_context_representation = tf.add_n(self.right_context)
             self.context_representation       = tf.concat(1,[self.left_context_representation,self.right_context_representation])
@@ -105,7 +105,8 @@ class Model:
             self.representation = tf.concat(1, [self.mention_representation_dropout, self.context_representation])
 
         if hier:
-            S = create_prior("../../resource/label2id_"+type+".txt")
+            _d = "Wiki" if type == "figer" else "OntoNotes"
+            S = create_prior("./resource/"+_d+"/label2id_"+type+".txt")
             assert(S.shape == (self.target_dim, self.target_dim))
             self.S = tf.constant(S,dtype=tf.float32)
             self.V = weight_variable((self.target_dim,self.rep_dim))
@@ -131,7 +132,7 @@ class Model:
         feed = {self.mention_representation: mention_representation_data,
                 self.target: target_data,
                 self.keep_prob: [0.5]}
-        if feature_data != None:
+        if self.feature == False or feature_data != None:
             feed[self.features] = feature_data
         for i in range(self.context_length*2+1):
             feed[self.context[i]] = context_data[:,i,:]
@@ -141,7 +142,7 @@ class Model:
         feed = {self.mention_representation: mention_representation_data,
                 self.target: target_data,
                 self.keep_prob: [1.0]}
-        if feature_data != None:
+        if self.feature == False or feature_data != None:
             feed[self.features] = feature_data
         for i in range(self.context_length*2+1):
             feed[self.context[i]] = context_data[:,i,:]
@@ -150,7 +151,7 @@ class Model:
     def predict(self, context_data, mention_representation_data, feature_data=None):
         feed = {self.mention_representation: mention_representation_data,
                 self.keep_prob: [1.0]}
-        if feature_data != None:
+        if self.feature == False or feature_data != None:
             feed[self.features] = feature_data
         for i in range(self.context_length*2+1):
             feed[self.context[i]] = context_data[:,i,:]
@@ -163,7 +164,7 @@ class Model:
         pass
 
     def save_label_embeddings(self):
-        from matplotlib import pyplot as plt
+        pass
         
 
     

@@ -27,7 +27,6 @@ dev_batcher = Batcher(dev_dataset["storage"],dev_dataset["data"],dev_dataset["da
 test_batcher = Batcher(test_dataset["storage"],test_dataset["data"],test_dataset["data"].shape[0],10,dicts["id2vec"])
 
 from nn_model import Model
-
 model = Model(type = "gillick", encoder = "averaging", hier = True, feature = False)
 
 

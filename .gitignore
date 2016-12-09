@@ -1,0 +1,6 @@
+corpus
+data/Wiki/*
+data/OntoNotes/*
+resource/Wiki/*
+resource/OntoNotes/*
+resource/glove.840B.300d.txt
