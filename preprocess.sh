@@ -14,17 +14,21 @@ mv glove.840B.300d.txt resource/
 echo "Preprocessing (creating ids for words, features, and labels)"
 
 echo "OntoNotes"
+mkdir ./resource/OntoNotes
 python ./resource/create_X2id.py corpus/OntoNotes/all.txt resource/OntoNotes/word2id_gillick.txt resource/OntoNotes/feature2id_gillick.txt resource/OntoNotes/label2id_gillick.txt
 
 echo "Wiki"
+mkdir ./resource/Wiki/
 python ./resource/create_X2id.py corpus/Wiki/all.txt resource/Wiki/word2id_figer.txt resource/Wiki/feature2id_figer.txt resource/Wiki/label2id_figer.txt
 
 echo "Preprocessing (creating dictionaries)"
 
 echo "OntoNotes"
+mkdir ./data/OntoNotes
 python create_dicts.py resource/OntoNotes/word2id_gillick.txt resource/OntoNotes/feature2id_gillick.txt  resource/OntoNotes/label2id_gillick.txt  resource/glove.840B.300d.txt data/OntoNotes/dicts_gillick.pkl
 
 echo "Wiki"
+mkdir ./data/Wiki
 python create_dicts.py resource/Wiki/word2id_figer.txt resource/Wiki/feature2id_figer.txt resource/Wiki/label2id_figer.txt  resource/glove.840B.300d.txt data/Wiki/dicts_figer.pkl
 
 echo "Preprocessing (creating datasets)"
