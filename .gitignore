@@ -1,3 +1,4 @@
+*.pyc
 corpus
 data/Wiki
 data/OntoNotes
