@@ -1,12 +1,15 @@
 #!/bin/sh
 
+set -o errexit
+set -o nounset
+
 echo "Downloading corpus"
 wget http://www.cl.ecei.tohoku.ac.jp/~shimaoka/corpus.zip
 unzip corpus.zip
 rm corpus.zip
 
 echo "Downloading word embeddings..."
-wget http://nlp.stanford.edu/data/glove.840B.300d.zip 
+wget http://nlp.stanford.edu/data/glove.840B.300d.zip
 unzip glove.840B.300d.zip
 rm glove.840B.300d.zip
 mv glove.840B.300d.txt resource/
