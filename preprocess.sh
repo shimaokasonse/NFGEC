@@ -1,5 +1,8 @@
 #!/bin/sh
 
+set -o errexit
+set -o nounset
+
 echo "Downloading corpus"
 wget http://www.cl.ecei.tohoku.ac.jp/~shimaoka/corpus.zip
 unzip corpus.zip
