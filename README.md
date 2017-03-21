@@ -3,9 +3,9 @@ Neural Architectures for Fine Grained Entity Type Classification
 
 This repository contains the source code for the experiments presented in the following research publication ([PDF](https://arxiv.org/pdf/1606.01341v1.pdf)):
 
-    Sonse Shimaoka, Pontus Stenetorp, Sebastian Riedel, and Kentaro Inui.
+    Sonse Shimaoka, Pontus Stenetorp, Kentaro Inui, Sebastian Riedel.
     "Neural Architectures for Fine Grained Entity Type Classification",
-    in Proceedings of the 15th Conference of the European Chapter of the Association for Computational Linguistics (EACL 2017), to appear.
+    in Proceedings of the 15th Conference of the European Chapter of the Association for Computational Linguistics (EACL 2017).
 
 ## Requirements
 
