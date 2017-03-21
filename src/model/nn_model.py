@@ -132,7 +132,7 @@ class Model:
         feed = {self.mention_representation: mention_representation_data,
                 self.target: target_data,
                 self.keep_prob: [0.5]}
-        if self.feature == False or feature_data != None:
+        if self.feature == True and feature_data != None:
             feed[self.features] = feature_data
         for i in range(self.context_length*2+1):
             feed[self.context[i]] = context_data[:,i,:]
@@ -142,7 +142,7 @@ class Model:
         feed = {self.mention_representation: mention_representation_data,
                 self.target: target_data,
                 self.keep_prob: [1.0]}
-        if self.feature == False or feature_data != None:
+        if self.feature == True and feature_data != None:
             feed[self.features] = feature_data
         for i in range(self.context_length*2+1):
             feed[self.context[i]] = context_data[:,i,:]
@@ -151,7 +151,7 @@ class Model:
     def predict(self, context_data, mention_representation_data, feature_data=None):
         feed = {self.mention_representation: mention_representation_data,
                 self.keep_prob: [1.0]}
-        if self.feature == False or feature_data != None:
+        if self.feature == True and feature_data != None:
             feed[self.features] = feature_data
         for i in range(self.context_length*2+1):
             feed[self.context[i]] = context_data[:,i,:]

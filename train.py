@@ -3,14 +3,19 @@ import argparse
 from sklearn.externals import joblib
 from src.model.nn_model import Model
 from src.batcher import Batcher
-from src.hook import acc_hook
+from src.hook import acc_hook, save_predictions
 
 parser = argparse.ArgumentParser()
 parser.add_argument("dataset",help="dataset to train model",choices=["figer","gillick"])
 parser.add_argument("encoder",help="context encoder to use in model",choices=["averaging","lstm","attentive"])
-parser.add_argument("feature",help="whether or not to use handcrafted features",type=bool,choices=[True,False])
-parser.add_argument("hier",help="whether or not to use hierarchical label encoding",type=bool,choices=[True,False]) 
+parser.add_argument('--feature', dest='feature', action='store_true')
+parser.add_argument('--no-feature', dest='feature', action='store_false')
+parser.set_defaults(feature=False)
+parser.add_argument('--hier', dest='hier', action='store_true')
+parser.add_argument('--no-hier', dest='hier', action='store_false')
+parser.set_defaults(hier=False)
 args = parser.parse_args()
+
 
 print "Creating the model"
 model = Model(type=args.dataset,encoder=args.encoder,hier=args.hier,feature=args.feature)
@@ -56,5 +61,7 @@ print "-----test--------"
 context_data, mention_representation_data, target_data, feature_data = test_batcher.next()
 scores = model.predict(context_data, mention_representation_data, feature_data)
 acc_hook(scores, target_data)
+fname = args.dataset + "_" + args.encoder + "_" + str(args.feature) + "_" + str(args.hier) + ".txt"
+save_predictions(scores, target_data, dicts["id2label"],fname)
 
 print "Cheers!"

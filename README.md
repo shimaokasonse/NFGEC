@@ -24,11 +24,19 @@ To run the experiments in the EACL 2017 paper, proceed as follows:
 
     $ python train.py figer attentive True True
 
-You can change the positional options to try different models:
+You can change the  options to try different models:
 
 	$ python train.py -h
-		positional arguments:
-  		{figer,gillick}              dataset to train model
-  		{averaging,lstm,attentive}   context encoder to use in model
-  		{True,False}                 whether or not to use handcrafted features
-  		{True,False}                 whether or not to use hierarchical label encoding
+	  	usage: train.py [-h] [--feature] [--no-feature] [--hier] [--no-hier]
+	                {figer,gillick} {averaging,lstm,attentive}
+
+		positional arguments:		    
+		{figer,gillick}       dataset to train model
+		{averaging,lstm,attentive}    context encoder to use in model
+
+		optional arguments:
+		-h, --help            show this help message and exit
+		--feature
+		--no-feature
+		--hier
+		--no-hier
