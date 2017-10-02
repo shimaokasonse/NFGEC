@@ -26,14 +26,14 @@ def main():
                 else:
                     feature2freq[feature] += 1
 
-    def _local(file_path, X2freq):
+    def _local(file_path, X2freq, start_idx=0):
         with open(file_path,"w") as f:
-            for i,(X,freq) in enumerate(sorted(X2freq.items(),key = lambda t: -t[1])):
+            for i,(X,freq) in enumerate(sorted(X2freq.items(),key = lambda t: -t[1]), start_idx):
                 f.write(str(i)+"\t"+X+"\t"+str(freq)+"\n")
 
     _local(sys.argv[2],word2freq)
-    _local(sys.argv[3],feature2freq)
+    _local(sys.argv[3],feature2freq, start_idx=1)
     _local(sys.argv[4],label2freq)
-    
+
 if(__name__=='__main__'):
     main()
