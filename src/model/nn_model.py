@@ -6,15 +6,18 @@ sys.path.append('../../')
 sys.path.append('../')
 from create_prior_knowledge import create_prior
 
-def weight_variable(shape):
-    initial = tf.random_uniform(shape,minval=-0.01, maxval=0.01)
-    return tf.Variable(initial)
+def weight_variable(name, shape, pad=True):
+    initial = np.random.uniform(-0.01, 0.01, size=shape)
+    if pad == True:
+        initial[0] = np.zeros(shape[1])
+    initial = tf.constant_initializer(initial)
+    return tf.get_variable(name=name, shape=shape, initializer=initial)
 
 def attentive_sum(inputs,input_dim, hidden_dim):
     with tf.variable_scope("attention"):
         seq_length = len(inputs)
-        W =  weight_variable((input_dim,hidden_dim))
-        U =  weight_variable((hidden_dim,1))
+        W =  weight_variable('att_W', (input_dim,hidden_dim))
+        U =  weight_variable('att_U', (hidden_dim,1))
         tf.get_variable_scope().reuse_variables()
         temp1 = [tf.nn.tanh(tf.matmul(inputs[i],W)) for i in range(seq_length)]
         temp2 = [tf.matmul(temp1[i],U) for i in range(seq_length)]
@@ -27,7 +30,7 @@ def attentive_sum(inputs,input_dim, hidden_dim):
 
 class Model:
     def __init__(self,type = "figer", encoder = "averaging", hier = False, feature = False):
-        
+
         # Argument Checking
         assert(encoder in ["averaging", "lstm", "attentive"])
         assert(type in ["figer", "gillick"])
@@ -35,8 +38,8 @@ class Model:
         self.encoder = encoder
         self.hier = hier
         self.feature = feature
-            
-        # Hyperparameters   
+
+        # Hyperparameters
         self.context_length = 10
         self.emb_dim = 300
         self.target_dim = 113 if type == "figer" else 89
@@ -93,13 +96,13 @@ class Model:
             with tf.variable_scope("rnn_right") as scope:
                 self.right_birnn,_,_ = tf.nn.bidirectional_rnn(self.right_lstm_F,self.right_lstm_B,list(reversed(self.right_context)),dtype=tf.float32)
             self.context_representation, self.attentions = attentive_sum(self.left_birnn + self.right_birnn, input_dim = self.lstm_dim * 2, hidden_dim = self.att_dim)
-                                                    
+
 
         # Logistic Regression
         if feature:
             self.features = tf.placeholder(tf.int32,[None,self.feature_input_dim])
-            self.feature_embeddings = weight_variable((self.feature_size, self.feature_dim))
-            self.feature_representation = tf.nn.dropout(tf.reduce_sum(tf.nn.embedding_lookup(self.feature_embeddings,self.features),1),self.keep_prob) 
+            self.feature_embeddings = weight_variable('feat_embds', (self.feature_size, self.feature_dim), True)
+            self.feature_representation = tf.nn.dropout(tf.reduce_sum(tf.nn.embedding_lookup(self.feature_embeddings,self.features),1),self.keep_prob)
             self.representation = tf.concat(1, [self.mention_representation_dropout, self.context_representation, self.feature_representation])
         else:
             self.representation = tf.concat(1, [self.mention_representation_dropout, self.context_representation])
@@ -109,13 +112,13 @@ class Model:
             S = create_prior("./resource/"+_d+"/label2id_"+type+".txt")
             assert(S.shape == (self.target_dim, self.target_dim))
             self.S = tf.constant(S,dtype=tf.float32)
-            self.V = weight_variable((self.target_dim,self.rep_dim))
+            self.V = weight_variable('hier_V', (self.target_dim,self.rep_dim))
             self.W = tf.transpose(tf.matmul(self.S,self.V))
             self.logit = tf.matmul(self.representation, self.W)
         else:
-            self.W = weight_variable((self.rep_dim,self.target_dim))
+            self.W = weight_variable('hier_W', (self.rep_dim,self.target_dim))
             self.logit = tf.matmul(self.representation, self.W)
-    
+
         self.distribution = tf.nn.sigmoid(self.logit)
 
         # Loss Function
@@ -132,7 +135,7 @@ class Model:
         feed = {self.mention_representation: mention_representation_data,
                 self.target: target_data,
                 self.keep_prob: [0.5]}
-        if self.feature == True and feature_data != None:
+        if self.feature == True and feature_data is not None:
             feed[self.features] = feature_data
         for i in range(self.context_length*2+1):
             feed[self.context[i]] = context_data[:,i,:]
@@ -142,7 +145,7 @@ class Model:
         feed = {self.mention_representation: mention_representation_data,
                 self.target: target_data,
                 self.keep_prob: [1.0]}
-        if self.feature == True and feature_data != None:
+        if self.feature == True and feature_data is not None:
             feed[self.features] = feature_data
         for i in range(self.context_length*2+1):
             feed[self.context[i]] = context_data[:,i,:]
@@ -151,7 +154,7 @@ class Model:
     def predict(self, context_data, mention_representation_data, feature_data=None):
         feed = {self.mention_representation: mention_representation_data,
                 self.keep_prob: [1.0]}
-        if self.feature == True and feature_data != None:
+        if self.feature == True and feature_data is not None:
             feed[self.features] = feature_data
         for i in range(self.context_length*2+1):
             feed[self.context[i]] = context_data[:,i,:]
@@ -165,6 +168,6 @@ class Model:
 
     def save_label_embeddings(self):
         pass
-        
 
-    
+
+
